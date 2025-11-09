@@ -19,7 +19,7 @@ if [ "$LOCAL" != "$REMOTE" ]; then
 
     # Rebuild and restart Docker container
     docker-compose build
-    docker-compose up -d --no-deps --build api
+    docker-compose up -d
 
     # Wait for health check
     sleep 10

@@ -52,10 +52,8 @@ router.get('/rating/:imdbId', (req: Request, res: Response) => {
   }
 });
 
-// POST /ratings - Get bulk ratings
-router.post('/ratings', (req: Request, res: Response) => {
-  const { imdbIds } = req.body as Partial<BulkRatingRequest>;
-
+// Helper function to process bulk ratings (used by both GET and POST)
+function processBulkRatings(imdbIds: string[], res: Response): void {
   // Check if database is seeding
   if (getSeedingStatus()) {
     res.status(503).json({
@@ -66,17 +64,17 @@ router.post('/ratings', (req: Request, res: Response) => {
     return;
   }
 
-  // Validate request body
+  // Validate array
   if (!Array.isArray(imdbIds)) {
     res.status(400).json({
-      error: 'Request body must contain an array of imdbIds',
+      error: 'Invalid request format',
     });
     return;
   }
 
   if (imdbIds.length === 0) {
     res.status(400).json({
-      error: 'imdbIds array cannot be empty',
+      error: 'At least one IMDb ID is required',
     });
     return;
   }
@@ -121,6 +119,43 @@ router.post('/ratings', (req: Request, res: Response) => {
       error: 'Internal server error',
     });
   }
+}
+
+// GET /ratings?id=tt0111161&id=tt0068646 - Get bulk ratings via query params
+router.get('/ratings', (req: Request, res: Response) => {
+  // Extract 'id' query params (can be string or array)
+  const idParam = req.query.id;
+
+  let imdbIds: string[];
+
+  if (typeof idParam === 'string') {
+    // Single ID: ?id=tt0111161
+    imdbIds = [idParam];
+  } else if (Array.isArray(idParam)) {
+    // Multiple IDs: ?id=tt0111161&id=tt0068646
+    imdbIds = idParam.filter(id => typeof id === 'string') as string[];
+  } else {
+    res.status(400).json({
+      error: 'Missing id parameter. Use: /api/ratings?id=tt0111161&id=tt0068646',
+    });
+    return;
+  }
+
+  processBulkRatings(imdbIds, res);
+});
+
+// POST /ratings - Get bulk ratings via JSON body
+router.post('/ratings', (req: Request, res: Response) => {
+  const { imdbIds } = req.body as Partial<BulkRatingRequest>;
+
+  if (!imdbIds) {
+    res.status(400).json({
+      error: 'Request body must contain an array of imdbIds',
+    });
+    return;
+  }
+
+  processBulkRatings(imdbIds, res);
 });
 
 // GET /health - Health check

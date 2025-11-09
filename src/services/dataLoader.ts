@@ -4,7 +4,7 @@ import zlib from 'zlib';
 import readline from 'readline';
 import { config } from '../config';
 import { Rating } from '../types';
-import { bulkInsertRatings, setUpdating, setSeeding } from '../database';
+import { bulkInsertRatings, setUpdating, setSeeding, isOperationRunning, setOperationInProgress } from '../database';
 
 const TEMP_FILE = './data/title.ratings.tsv.gz';
 const BATCH_SIZE = 10000;
@@ -152,7 +152,14 @@ export async function parseAndLoadData(filePath: string): Promise<number> {
 }
 
 export async function updateDatabase(): Promise<void> {
+  // Check if another operation is running
+  if (isOperationRunning()) {
+    console.log('Another database operation is in progress. Skipping update.');
+    return;
+  }
+
   try {
+    setOperationInProgress(true);
     setUpdating(true);
     console.log('Starting database update...');
 
@@ -166,16 +173,25 @@ export async function updateDatabase(): Promise<void> {
     }
 
     setUpdating(false);
+    setOperationInProgress(false);
     console.log('Database update complete');
   } catch (error) {
     setUpdating(false);
+    setOperationInProgress(false);
     console.error('Error updating database:', error);
     throw error;
   }
 }
 
 export async function seedDatabase(): Promise<void> {
+  // Check if another operation is running
+  if (isOperationRunning()) {
+    console.log('Another database operation is in progress. Skipping seed.');
+    return;
+  }
+
   try {
+    setOperationInProgress(true);
     setSeeding(true);
     console.log('Starting initial database seed...');
 
@@ -189,9 +205,11 @@ export async function seedDatabase(): Promise<void> {
     }
 
     setSeeding(false);
+    setOperationInProgress(false);
     console.log('Database seed complete');
   } catch (error) {
     setSeeding(false);
+    setOperationInProgress(false);
     console.error('Error seeding database:', error);
     throw error;
   }

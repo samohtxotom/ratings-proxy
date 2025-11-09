@@ -2,20 +2,20 @@
 # Auto-update script for IMDb Ratings API
 # Checks for GitHub updates every 5 minutes and deploys automatically
 
-cd /home/ubuntu/imdb-ratings-api
+cd /home/ubuntu/ratings-proxy
 
 # Fetch latest from GitHub
-git fetch origin main
+git fetch origin latest
 
 # Compare local and remote commits
 LOCAL=$(git rev-parse HEAD)
-REMOTE=$(git rev-parse origin/main)
+REMOTE=$(git rev-parse origin/latest)
 
 if [ "$LOCAL" != "$REMOTE" ]; then
     echo "[$(date)] Updates detected - deploying..."
 
     # Pull latest code
-    git pull origin main
+    git pull origin latest
 
     # Rebuild and restart Docker container
     docker-compose build

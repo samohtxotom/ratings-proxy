@@ -7,6 +7,7 @@ import fs from 'fs';
 let db: Database.Database | null = null;
 let isUpdating = false;
 let isSeeding = false;
+let isOperationInProgress = false; // Prevent concurrent seed/update
 let lastUpdate: Date | null = null;
 
 export function initDatabase(): Database.Database {
@@ -98,6 +99,14 @@ export function getLastUpdate(): Date | null {
 export function isDatabaseEmpty(): boolean {
   const count = getTotalRatings();
   return count === 0;
+}
+
+export function isOperationRunning(): boolean {
+  return isOperationInProgress;
+}
+
+export function setOperationInProgress(status: boolean): void {
+  isOperationInProgress = status;
 }
 
 export function bulkInsertRatings(ratings: Rating[]): void {

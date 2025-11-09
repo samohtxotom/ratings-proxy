@@ -20,8 +20,7 @@ curl https://api.agregarr.org/api/rating/tt0111161
 {
   "imdbId": "tt0111161",
   "rating": 9.3,
-  "votes": 2800000,
-  "found": true
+  "votes": 2800000
 }
 ```
 
@@ -30,10 +29,11 @@ curl https://api.agregarr.org/api/rating/tt0111161
 {
   "imdbId": "tt9999999",
   "rating": null,
-  "votes": null,
-  "found": false
+  "votes": null
 }
 ```
+
+Note: If `rating` and `votes` are `null`, the title was not found in the database.
 
 ### Get Bulk Ratings
 
@@ -66,20 +66,17 @@ curl -X POST https://api.agregarr.org/api/ratings \
   {
     "imdbId": "tt0111161",
     "rating": 9.3,
-    "votes": 2800000,
-    "found": true
+    "votes": 2800000
   },
   {
     "imdbId": "tt0068646",
     "rating": 9.2,
-    "votes": 1900000,
-    "found": true
+    "votes": 1900000
   },
   {
     "imdbId": "tt0468569",
     "rating": 9.0,
-    "votes": 2700000,
-    "found": true
+    "votes": 2700000
   }
 ]
 ```

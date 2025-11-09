@@ -33,7 +33,6 @@ router.get('/rating/:imdbId', (req: Request, res: Response) => {
       imdbId,
       rating: rating?.averageRating ?? null,
       votes: rating?.numVotes ?? null,
-      found: rating !== null,
     };
 
     // Set cache headers for Cloudflare
@@ -105,7 +104,6 @@ function processBulkRatings(imdbIds: string[], res: Response): void {
         imdbId,
         rating: rating?.averageRating ?? null,
         votes: rating?.numVotes ?? null,
-        found: rating !== null,
       };
     });
 

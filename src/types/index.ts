@@ -8,7 +8,6 @@ export interface RatingResponse {
   imdbId: string;
   rating: number | null;
   votes: number | null;
-  found: boolean;
 }
 
 export interface BulkRatingRequest {

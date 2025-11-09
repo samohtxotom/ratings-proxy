@@ -8,8 +8,19 @@ import { bulkInsertRatings, setUpdating, setSeeding } from '../database';
 
 const TEMP_FILE = './data/title.ratings.tsv.gz';
 const BATCH_SIZE = 10000;
+const RETRY_DELAYS_MS = [
+  1 * 60 * 1000,      // 1 minute
+  15 * 60 * 1000,     // 15 minutes
+  60 * 60 * 1000,     // 1 hour
+  6 * 60 * 60 * 1000, // 6 hours
+  12 * 60 * 60 * 1000 // 12 hours
+];
 
-export async function downloadDataset(): Promise<string> {
+async function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export async function downloadDataset(retryCount = 0): Promise<string> {
   return new Promise((resolve, reject) => {
     const dir = './data';
     if (!fs.existsSync(dir)) {
@@ -44,9 +55,28 @@ export async function downloadDataset(): Promise<string> {
         console.log('\nDownload complete');
         resolve(TEMP_FILE);
       });
-    }).on('error', (err) => {
+    }).on('error', async (err) => {
       fs.unlink(TEMP_FILE, () => {});
-      reject(err);
+
+      // Retry logic
+      if (retryCount < RETRY_DELAYS_MS.length) {
+        const delayMs = RETRY_DELAYS_MS[retryCount];
+        const delayMinutes = Math.round(delayMs / 60000);
+        console.error(`\nDownload failed: ${err.message}`);
+        console.log(`Retrying in ${delayMinutes} minute(s)... (attempt ${retryCount + 1}/${RETRY_DELAYS_MS.length})`);
+
+        await sleep(delayMs);
+
+        try {
+          const result = await downloadDataset(retryCount + 1);
+          resolve(result);
+        } catch (retryErr) {
+          reject(retryErr);
+        }
+      } else {
+        console.error(`\nDownload failed after ${RETRY_DELAYS_MS.length} retries. Skipping update.`);
+        reject(err);
+      }
     });
   });
 }

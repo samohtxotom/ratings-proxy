@@ -4,53 +4,6 @@ import { RatingResponse, BulkRatingRequest, HealthStatus } from '../types';
 
 const router = Router();
 
-// GET /rating/:imdbId - Get single rating
-router.get('/rating/:imdbId', (req: Request, res: Response) => {
-  const { imdbId } = req.params;
-
-  // Check if database is seeding
-  if (getSeedingStatus()) {
-    res.status(503).json({
-      error: 'Service temporarily unavailable',
-      message: 'Database is being populated with initial data. Please try again in a few minutes.',
-      status: 'seeding',
-    });
-    return;
-  }
-
-  // Validate IMDb ID format (should start with 'tt' followed by digits)
-  if (!/^tt\d+$/.test(imdbId)) {
-    res.status(400).json({
-      error: 'Invalid IMDb ID format. Expected format: tt1234567',
-    });
-    return;
-  }
-
-  try {
-    const rating = getRating(imdbId);
-
-    const response: RatingResponse = {
-      imdbId,
-      rating: rating?.averageRating ?? null,
-      votes: rating?.numVotes ?? null,
-    };
-
-    // Set cache headers for Cloudflare
-    res.set('Cache-Control', 'public, max-age=86400'); // 24 hours
-
-    if (rating) {
-      res.json(response);
-    } else {
-      res.status(404).json(response);
-    }
-  } catch (error) {
-    console.error('Error fetching rating:', error);
-    res.status(500).json({
-      error: 'Internal server error',
-    });
-  }
-});
-
 // Helper function to process bulk ratings (used by both GET and POST)
 function processBulkRatings(imdbIds: string[], res: Response): void {
   // Check if database is seeding
@@ -135,20 +88,6 @@ router.get('/ratings', (req: Request, res: Response) => {
   } else {
     res.status(400).json({
       error: 'Missing id parameter. Use: /api/ratings?id=tt0111161&id=tt0068646',
-    });
-    return;
-  }
-
-  processBulkRatings(imdbIds, res);
-});
-
-// POST /ratings - Get bulk ratings via JSON body
-router.post('/ratings', (req: Request, res: Response) => {
-  const { imdbIds } = req.body as Partial<BulkRatingRequest>;
-
-  if (!imdbIds) {
-    res.status(400).json({
-      error: 'Request body must contain an array of imdbIds',
     });
     return;
   }

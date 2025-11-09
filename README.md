@@ -4,61 +4,23 @@ Agregarr hosts a free open source IMDb ratings proxy for both Movies and TV Show
 
 ## API Endpoints
 
-### Get Single Rating
+### Get Ratings
 
-**GET** `https://api.agregarr.org/api/rating/:imdbId`
+**GET** `https://api.agregarr.org/api/ratings?id=...&id=...`
 
-Retrieve rating information for a single IMDb title.
+Retrieve ratings for one or more IMDb titles (max 100 per request).
 
-**Example Request:**
+**Single ID:**
 ```bash
-curl https://api.agregarr.org/api/rating/tt0111161
+curl "https://api.agregarr.org/api/ratings?id=tt0111161"
 ```
 
-**Example Response:**
-```json
-{
-  "imdbId": "tt0111161",
-  "rating": 9.3,
-  "votes": 2800000
-}
-```
-
-**Response (Not Found):**
-```json
-{
-  "imdbId": "tt9999999",
-  "rating": null,
-  "votes": null
-}
-```
-
-Note: If `rating` and `votes` are `null`, the title was not found in the database.
-
-### Get Bulk Ratings
-
-Retrieve ratings for multiple IMDb titles (max 100 per request).
-
-**Method 1: GET (Browser-friendly)**
-
-`https://api.agregarr.org/api/ratings?id=tt0111161&id=tt0068646&id=tt0468569`
-
-You can paste this directly in a browser! Just add `?id=IMDB_ID` for each title.
-
-**Example Request:**
+**Multiple IDs:**
 ```bash
 curl "https://api.agregarr.org/api/ratings?id=tt0111161&id=tt0068646&id=tt0468569"
 ```
 
-**Method 2: POST (For applications)**
-
-```bash
-curl -X POST https://api.agregarr.org/api/ratings \
-  -H "Content-Type: application/json" \
-  -d '{
-    "imdbIds": ["tt0111161", "tt0068646", "tt0468569"]
-  }'
-```
+You can paste these directly in a browser! Just add `?id=IMDB_ID` for each title.
 
 **Example Response:**
 ```json
@@ -72,11 +34,18 @@ curl -X POST https://api.agregarr.org/api/ratings \
     "imdbId": "tt0068646",
     "rating": 9.2,
     "votes": 1900000
-  },
+  }
+]
+```
+
+**Not Found:**
+If a title isn't in the database, `rating` and `votes` will be `null`:
+```json
+[
   {
-    "imdbId": "tt0468569",
-    "rating": 9.0,
-    "votes": 2700000
+    "imdbId": "tt9999999",
+    "rating": null,
+    "votes": null
   }
 ]
 ```

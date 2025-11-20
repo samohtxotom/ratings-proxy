@@ -1,6 +1,8 @@
 # IMDb Ratings API
 
-Agregarr hosts a free open source IMDb ratings proxy for both Movies and TV Shows, built with Node.js, Express, and SQLite.
+Agregarr hosts a free open source IMDb ratings proxy for both Movies and TV Shows. 
+
+You are welcome to use this in your own open source project, no API key required. Any issues can be reported on the [GitHub page](https://github.com/agregarr/imdb-ratings-api/issues)
 
 ## API Endpoints
 
@@ -19,8 +21,6 @@ curl "https://api.agregarr.org/api/ratings?id=tt0111161"
 ```bash
 curl "https://api.agregarr.org/api/ratings?id=tt0111161&id=tt0068646&id=tt0468569"
 ```
-
-You can paste these directly in a browser! Just add `?id=IMDB_ID` for each title.
 
 **Example Response:**
 ```json
@@ -68,13 +68,5 @@ Check the API health and status.
 
 ### Data Source
 
-The API uses IMDb's official non-commercial datasets, specifically `title.ratings.tsv.gz` from [https://datasets.imdbws.com/](https://datasets.imdbws.com/). This dataset is updated daily by IMDb.
-
-## License
-
-MIT License - see LICENSE file for details
-
-## Disclaimer
-
-This API uses publicly available IMDb datasets for non-commercial use. Please refer to IMDb's terms of service for usage restrictions.
+The API uses IMDb's official non-commercial datasets, `title.ratings.tsv.gz` from [https://datasets.imdbws.com/](https://datasets.imdbws.com/). This dataset is updated daily by IMDb. Please refer to IMDb's terms of service for usage restrictions.
 
